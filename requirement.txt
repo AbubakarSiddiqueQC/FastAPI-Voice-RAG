@@ -1,0 +1,6 @@
+uvicorn==0.17.6
+pipenv==2022.6.7
+prisma==0.6.6
+py==1.11.0
+PyJWT==2.4.0
+fastapi==0.78.0

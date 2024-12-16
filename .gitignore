@@ -1,0 +1,12 @@
+__pycache__
+venv
+.env
+.idea
+
+
+
+*.png
+*.jpg
+*.jpeg
+*.zip
+*.rar
