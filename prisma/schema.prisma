@@ -34,7 +34,7 @@ model Department {
 }
 
 model User {
-  id            Int     @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   role          UserRole    
   departmentId  Int    
   email         String    @unique @db.VarChar(255)
