@@ -54,7 +54,6 @@ class SignUp(BaseModel):
 
 @router.post("/auth/sign-up", tags=["auth"])
 async def sign_up(user: SignUp):
-    password = encryptPassword(user.password)
     created = await prisma.user.create(
         {
             "email": user.email,
@@ -72,9 +71,14 @@ async def sign_up(user: SignUp):
 
 @router.get("/auth/", tags=["auth"])
 async def auth():
-    users = await prisma.user.find_many()
+    users = await prisma.user.find_many(
+        select = {
+            "id": True,  
+            "email": True,  
+        }
+    )
 
-    for user in users:
-        del user.password
+    # for user in users:
+    #     del user.password
 
     return users

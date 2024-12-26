@@ -1,4 +1,3 @@
-from typing import List
 from fastapi import APIRouter, Depends
 from src.prisma import prisma
 from src.utils.auth import JWTBearer, decodeJWT

@@ -5,17 +5,13 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // url      = "postgresql://postgres:admin@123@localhost:5432/postgres?schema=VoiceRag"
   url      = env("DATABASE_URL")
 }
 
 enum Gender {
   male
   female
-}
-
-enum UserRole {
-  admin
-  customer
 }
 
 enum AuthType {
@@ -25,28 +21,89 @@ enum AuthType {
   apple
 }
 
-model Department {
- // id        String    @id @default(cuid()) @db.VarChar(255)
-    id          Int     @id @default(autoincrement())
-    name        String
-
-    User User[]
-}
-
 model User {
-  id            Int       @id @default(autoincrement())
-  role          UserRole    
-  departmentId  Int    
-  email         String    @unique @db.VarChar(255)
-  password      String?   @db.VarChar(255)
-  name          String?   @db.VarChar(255)
-  imageURL      String?   @db.VarChar(255)
-  gender        Gender
-  phone         String?   @db.VarChar(255)
-  verified      Boolean?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime?
-  deleted       Boolean   @default(value: false)
-
-  department    Department @relation(fields: [departmentId], references: [id])
+  id        String    @id @default(cuid()) @db.VarChar(255)
+  email     String    @unique @db.VarChar(255)
+  password  String?   @db.VarChar(255)
+  name      String?   @db.VarChar(255)
+  nickname  String?   @db.VarChar(255)
+  thumbURL  String?   @db.VarChar(255)
+  photoURL  String?   @db.VarChar(255)
+  birthDay  DateTime?
+  gender    Gender?
+  phone     String?   @db.VarChar(255)
+  verified  Boolean?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @default(now())
+  deletedAt DateTime?
+  posts     Post[]
+  profile   Profile?
 }
+
+model Profile {
+  id       String    @id @default(cuid()) @db.VarChar(255)
+  socialId String?
+  authType AuthType?
+  userId   String    @unique @db.VarChar(255)
+  User     User      @relation(fields: [userId], references: [id])
+}
+
+model Post {
+  id        Int       @id @default(autoincrement())
+  title     String    @db.VarChar(255)
+  content   String?
+  published Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  userId String @db.VarChar(255)
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+
+
+
+
+// enum Gender {
+//   male
+//   female
+// }
+
+// enum UserRole {
+//   admin
+//   customer
+// }
+
+// enum AuthType {
+//   email
+//   facebook
+//   google
+//   apple
+// }
+
+// model Department {
+//  // id        String    @id @default(cuid()) @db.VarChar(255)
+//     id          Int     @id @default(autoincrement())
+//     name        String
+
+//     User User[]
+// }
+
+// model User {
+//   id            Int       @id @default(autoincrement())
+//   role          UserRole    
+//   departmentId  Int    
+//   email         String    @unique @db.VarChar(255)
+//   password      String?   @db.VarChar(255)
+//   name          String?   @db.VarChar(255)
+//   imageURL      String?   @db.VarChar(255)
+//   gender        Gender
+//   phone         String?   @db.VarChar(255)
+//   verified      Boolean?
+//   createdAt     DateTime  @default(now())
+//   updatedAt     DateTime?
+//   deleted       Boolean   @default(value: false)
+
+//   department    Department @relation(fields: [departmentId], references: [id])
+// }
