@@ -1,17 +1,24 @@
 generator client {
   provider  = "prisma-client-py"
-  interface = "asyncio"
+  // interface = "asyncio"
+  recursive_type_depth = -1
 }
 
 datasource db {
   provider = "postgresql"
-  // url      = "postgresql://postgres:admin@123@localhost:5432/postgres?schema=VoiceRag"
-  url      = env("DATABASE_URL")
+  // url      = env("DATABASE_URL")
+  url      = "postgresql://postgres:admin%40123@localhost:5432/VoiceRag?schema=public"
 }
 
 enum Gender {
   male
   female
+}
+
+enum UserRole {
+  superAdmin
+  departmentAdmin
+  customer
 }
 
 enum AuthType {
@@ -21,89 +28,102 @@ enum AuthType {
   apple
 }
 
+model Company {
+  id                Int     @id @default(autoincrement())
+  name              String
+  description       String
+  imageUrl          String
+
+  departments       Department[]
+  User User[]
+}
+
+model Department {
+ // id            String    @id @default(cuid()) @db.VarChar(255)
+  id              Int     @id @default(autoincrement())
+  name            String
+  description     String
+  companyId       Int
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime? 
+  deleted         Boolean     @default(value: false)
+    
+  company         Company      @relation(fields: [companyId], references: [id])
+  users           User[]
+}
+
+model DepartmentUser { 
+  id              Int     @id @default(autoincrement())
+  departmentId    Int
+  userId          Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime? 
+  deleted       Boolean     @default(value: false)
+
+}
+
+model TrainingDataFile {
+  id              Int     @id @default(autoincrement())
+  fileName        String
+  filePath        String
+  fileType        String
+  companyId       Int
+  createdBy      Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime? 
+  deleted       Boolean     @default(value: false)
+
+  AgentTrainingDataFile AgentTrainingDataFile[]
+}
+
+model Agent {
+  id              Int     @id @default(autoincrement())
+  name        String
+  description        String
+  systemPrompt        String?
+  companyId       Int
+  departmentId       Int
+  createdBy      Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime? 
+  deleted       Boolean     @default(value: false)
+
+  AgentTrainingDataFile AgentTrainingDataFile[]
+}
+
+
+model AgentTrainingDataFile {
+  id              Int     @id @default(autoincrement())
+  agentId         Int     
+  trainingDataFileId         Int  
+
+  agent    Agent?  @relation(fields: [agentId], references: [id])
+  trainingDataFile    TrainingDataFile?  @relation(fields: [trainingDataFileId], references: [id])   
+}
+
+model setting { 
+  id              Int     @id @default(autoincrement())
+  departmentId    Int?
+  companyId       Int?
+  key             String
+  value           String
+}
 model User {
-  id        String    @id @default(cuid()) @db.VarChar(255)
-  email     String    @unique @db.VarChar(255)
-  password  String?   @db.VarChar(255)
-  name      String?   @db.VarChar(255)
-  nickname  String?   @db.VarChar(255)
-  thumbURL  String?   @db.VarChar(255)
-  photoURL  String?   @db.VarChar(255)
-  birthDay  DateTime?
-  gender    Gender?
-  phone     String?   @db.VarChar(255)
-  verified  Boolean?
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @default(now())
-  deletedAt DateTime?
-  posts     Post[]
-  profile   Profile?
+  id            Int         @id @default(autoincrement())
+  role          UserRole      
+  departmentId  Int?      
+  companyId     Int?      
+  email         String      @unique @db.VarChar(255)
+  password      String?     @db.VarChar(255)
+  name          String?     @db.VarChar(255)
+  imageURL      String?     @db.VarChar(255)
+  gender        Gender  
+  phone         String?     @db.VarChar(255)
+  verified      Boolean?  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime? 
+  deleted       Boolean     @default(value: false)
+
+  department    Department?  @relation(fields: [departmentId], references: [id])
+  company    Company?  @relation(fields: [companyId], references: [id])
 }
-
-model Profile {
-  id       String    @id @default(cuid()) @db.VarChar(255)
-  socialId String?
-  authType AuthType?
-  userId   String    @unique @db.VarChar(255)
-  User     User      @relation(fields: [userId], references: [id])
-}
-
-model Post {
-  id        Int       @id @default(autoincrement())
-  title     String    @db.VarChar(255)
-  content   String?
-  published Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now())
-  deletedAt DateTime?
-
-  userId String @db.VarChar(255)
-  user   User   @relation(fields: [userId], references: [id])
-}
-
-
-
-
-
-// enum Gender {
-//   male
-//   female
-// }
-
-// enum UserRole {
-//   admin
-//   customer
-// }
-
-// enum AuthType {
-//   email
-//   facebook
-//   google
-//   apple
-// }
-
-// model Department {
-//  // id        String    @id @default(cuid()) @db.VarChar(255)
-//     id          Int     @id @default(autoincrement())
-//     name        String
-
-//     User User[]
-// }
-
-// model User {
-//   id            Int       @id @default(autoincrement())
-//   role          UserRole    
-//   departmentId  Int    
-//   email         String    @unique @db.VarChar(255)
-//   password      String?   @db.VarChar(255)
-//   name          String?   @db.VarChar(255)
-//   imageURL      String?   @db.VarChar(255)
-//   gender        Gender
-//   phone         String?   @db.VarChar(255)
-//   verified      Boolean?
-//   createdAt     DateTime  @default(now())
-//   updatedAt     DateTime?
-//   deleted       Boolean   @default(value: false)
-
-//   department    Department @relation(fields: [departmentId], references: [id])
-// }
